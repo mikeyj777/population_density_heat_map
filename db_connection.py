@@ -1,7 +1,8 @@
 
 import pandas as pd
 import pyodbc
-from pwds import tt_prod_pwd
+
+from data.pwds import tt_prod_pwd
 
 def get_database_connection():
 
