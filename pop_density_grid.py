@@ -12,6 +12,9 @@ grid = geosp.grid
 
 haz_study = get_data_table_return_as_dataframe('HazardStudy')
 
-
+# get the grid points that equate to the approx lat/long of the target table release points.  
+    # confirm that the point isn't too far from the grid lat/long.
+# apply the population density to the grid cell and surrounding cells
+    # if the cells have higher densities already, do not overwrite.
 
 apple = 1
