@@ -12,6 +12,7 @@ class GeoSpatial:
             self.make_grid()
         
     def make_grid(self):
+        # x, y point is the southwest corner of the grid cell.
         self.grid = np.zeros((self.grid_size, self.grid_size))
         
     def transform_grid_point_to_lat_long(self, grid_point_xy):
@@ -38,3 +39,7 @@ class GeoSpatial:
         new_lon = lon + degrees(dLon)
 
         return new_lat, new_lon
+    
+    def get_grid_point_from_lat_long(grid_x, grid_y):
+        # get the grid point which contains the lat/long coordinate.
+        pass
