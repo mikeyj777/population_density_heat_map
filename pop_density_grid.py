@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 from db_connection import get_data_table_return_as_dataframe
 from geospatial import GeoSpatial
 
@@ -20,15 +20,19 @@ haz_study = get_data_table_return_as_dataframe('HazardStudy')
 
 
 
-for _, row in haz_study.iterrows:
+for _, row in haz_study.iterrows():
     lat = row['ApproxLatitude']
+    if pd.isna(lat):
+        continue
     long = row['ApproxLongitude']
+    if pd.isna(long) is None:
+        continue
     day_occ = row['ProcAreaPopDensity']
     night_occ = row['NightProcAreaPopDensity']
     occ = 0
-    if day_occ is not None and isinstance(day_occ, (int, float)) and not isinstance(day_occ, bool):
+    if not pd.isna(day_occ) and isinstance(day_occ, (int, float)) and not isinstance(day_occ, bool):
         occ = day_occ
-    if night_occ is not None and isinstance(night_occ, (int, float)) and not isinstance(night_occ, bool):
+    if not pd.isna(night_occ) and isinstance(night_occ, (int, float)) and not isinstance(night_occ, bool):
         occ = max(day_occ, night_occ)
     if occ == 0:
         continue
