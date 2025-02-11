@@ -40,6 +40,25 @@ class GeoSpatial:
 
         return new_lat, new_lon
     
-    def get_grid_point_from_lat_long(grid_x, grid_y):
-        # get the grid point which contains the lat/long coordinate.
-        pass
+    def get_grid_point_xy_from_lat_long(self, lat, long):
+
+        # Radius of the Earth in meters
+        R = 6378137
+
+        # Convert latitude and longitude from degrees to radians
+        lat1 = radians(self.grid_origin_lat_long[0])
+        lon1 = radians(self.grid_origin_lat_long[1])
+        lat2 = radians(lat)
+        lon2 = radians(long)
+
+        # Compute differences in coordinates
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        # Calculate the offset in x and y directions
+        x_offset = R * dlon * cos((lat1 + lat2) / 2)
+        y_offset = R * dlat
+
+
+
+        return int(x_offset / self.grid_side_length_m), int(y_offset / self.grid_side_length_m)
