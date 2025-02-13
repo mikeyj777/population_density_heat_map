@@ -1,12 +1,14 @@
 import numpy as np
 import pandas as pd
+from datetime import datetime as dt
+
 from db_connection import get_data_table_return_as_dataframe
 from geospatial import GeoSpatial
 
 grid_size = 100
 grid_spacing_m = 30
-# grid_origin_lat_long = [36.509145, -82.558015]
-grid_origin_lat_long = [36.55072, -82.525554]
+grid_origin_lat_long = [36.509145, -82.558015]
+# grid_origin_lat_long = [36.55072, -82.525554]
 geosp = GeoSpatial(grid_size=grid_size, grid_side_length_m=grid_spacing_m, grid_origin_lat_long=grid_origin_lat_long)
 grid = geosp.grid
 
@@ -20,12 +22,12 @@ haz_study = get_data_table_return_as_dataframe('HazardStudy')
 
 
 
-for _, row in haz_study.iterrows():
+for idx, row in haz_study.iterrows():
     lat = row['ApproxLatitude']
-    if pd.isna(lat):
+    if pd.isna(lat) or lat == 36.52: # default value for latitude when unknown
         continue
     long = row['ApproxLongitude']
-    if pd.isna(long) is None:
+    if pd.isna(long) or long == -82.54:
         continue
     day_occ = row['ProcAreaPopDensity']
     night_occ = row['NightProcAreaPopDensity']
@@ -41,6 +43,15 @@ for _, row in haz_study.iterrows():
     y = grid_point_xy[1]
     if x < 0 or y < 0 or x > grid.shape[0] or y > grid.shape[1]:
         continue
+    release_datetime = row['CreatedDate']
+    release_datetime = release_datetime.to_pydatetime()
+    t_delta = dt.now() - release_datetime
+    t_delta_years = t_delta.days / 365
+
+    # guidance for occupancy specification has improved over time.  focusing on previous year of data.
+    if t_delta_years > 1:
+        continue
+    # print(f'index: {idx} | lat: {lat} | long: {long} | occ: {occ}')
     for i in range(2):
         i_pos = i - 2
         if x + i_pos < 0 or x + i_pos > grid.shape[0]:
@@ -49,8 +60,12 @@ for _, row in haz_study.iterrows():
             j_pos = j-2
             if y + j_pos < 0 or y + j_pos > grid.shape[1]:
                 continue
-            if grid[x + i_pos, y + j_pos] < occ:
-                grid[x + i_pos, y + j_pos] = occ
+            if grid[x + i_pos, y + j_pos]['occupancy'] is None or grid[x + i_pos, y + j_pos]['occupancy'] < occ:
+                grid[x + i_pos, y + j_pos]['occupancy'] = occ
+grid_flat = grid.flatten(order='C')
+grid_list = grid_flat.tolist()
+grid_df = pd.DataFrame(grid_list)
+grid_df.to_csv('occupancy_grid_tno.csv', index=False)
     
 
 apple = 1

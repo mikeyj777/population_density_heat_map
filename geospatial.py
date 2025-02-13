@@ -13,7 +13,16 @@ class GeoSpatial:
         
     def make_grid(self):
         # x, y point is the southwest corner of the grid cell.
-        self.grid = np.zeros((self.grid_size, self.grid_size))
+        self.grid = np.full((self.grid_size, self.grid_size), None)
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                ll = self.transform_grid_point_to_lat_long((i, j))
+                self.grid[i, j] = {
+                    'lat': ll[0],
+                    'long': ll[1],
+                    'occupancy': 0
+                }
+
         
     def transform_grid_point_to_lat_long(self, grid_point_xy):
 
@@ -21,6 +30,8 @@ class GeoSpatial:
         y = grid_point_xy[1]
         dist_x = self.grid_side_length_m * x
         dist_y = self.grid_side_length_m * y
+
+        self.get_lat_long_from_origin_offset(dist_x, dist_y)
 
         return self.get_lat_long_from_origin_offset(dist_x, dist_y)
 
